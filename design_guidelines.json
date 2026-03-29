@@ -1,0 +1,104 @@
+{
+  "theme": "Light",
+  "archetype": "Archetype 4: Swiss & High-Contrast",
+  "typography": {
+    "heading_font": "Cabinet Grotesk",
+    "body_font": "IBM Plex Sans",
+    "hierarchy": {
+      "h1": "text-4xl tracking-tight sm:text-5xl lg:text-6xl font-black text-[#0A0A0A]",
+      "h2": "text-2xl tracking-tight sm:text-3xl lg:text-4xl font-bold text-[#0A0A0A]",
+      "h3": "text-xl sm:text-2xl font-semibold text-[#0A0A0A]",
+      "h4": "text-lg sm:text-xl font-medium text-[#0A0A0A]",
+      "body": "text-base leading-relaxed text-[#404040]",
+      "small_label": "text-xs tracking-[0.2em] uppercase font-bold text-[#737373]"
+    }
+  },
+  "colors": {
+    "background": {
+      "page": "#F4F4F5",
+      "card": "#FFFFFF",
+      "glass": "bg-white/80 backdrop-blur-xl"
+    },
+    "text": {
+      "primary": "#0A0A0A",
+      "secondary": "#404040",
+      "muted": "#737373"
+    },
+    "primary_action": {
+      "default": "#0047FF",
+      "hover": "#0038CC",
+      "text": "#FFFFFF"
+    },
+    "secondary_action": {
+      "default": "#0A0A0A",
+      "hover": "#27272A",
+      "text": "#FFFFFF"
+    },
+    "borders": {
+      "default": "#E4E4E7",
+      "high_contrast": "#0A0A0A"
+    },
+    "status": {
+      "success": "#16A34A",
+      "warning": "#EAB308",
+      "error": "#DC2626"
+    }
+  },
+  "layout_spacing": {
+    "padding_scale": "p-4, p-6, p-8, p-12 (Generous Spacing for forms, dense for analytics)",
+    "grid_strategy": "Control Room Grid for Analytics (gap-4). Bento Grid for Meeting Room details.",
+    "border_radius": "rounded-none (Sharp corners for brutalist feel)",
+    "cards": "border border-zinc-200 bg-white p-6 shadow-none hover:shadow-md transition-shadow"
+  },
+  "component_instructions": {
+    "navigation": "Top navigation or Sidebar must have a hard 1px border-b or border-r. Active states should use a bold black or blue accent line.",
+    "buttons": "Sharp edges, flat colors, no gradients. Hover states translate Y by -2px.",
+    "forms": "Use Shadcn components but override border-radius to 0px. Focus states MUST have ring-2 ring-[#0047FF].",
+    "tables": "High contrast headers. Alternate row backgrounds for readability (bg-zinc-50).",
+    "ai_chatbot_widget": "A floating widget with the blue tech background or #0047FF primary color to stand out as the 'AI' element. Use phosphor-icons for the bot avatar."
+  },
+  "motion": {
+    "hover": "transition-transform duration-200 ease-out hover:-translate-y-0.5",
+    "entrance": "animate-in fade-in slide-in-from-bottom-4 duration-500",
+    "focus": "focus:outline-none focus:ring-2 focus:ring-[#0047FF] focus:ring-offset-2"
+  },
+  "media_urls": {
+    "hero_background": {
+      "url": "https://images.unsplash.com/photo-1757359315242-9813e0544bb7?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1ODh8MHwxfHNlYXJjaHwyfHxhYnN0cmFjdCUyMGxpZ2h0JTIwZ3JheSUyMGFyY2hpdGVjdHVyYWwlMjBtaW5pbWFsfGVufDB8fHx8MTc3NDc2MjAyNHww&ixlib=rb-4.1.0&q=85",
+      "description": "Abstract light gray architectural pattern for login or empty states."
+    },
+    "ai_widget_bg": {
+      "url": "https://images.unsplash.com/photo-1773053525998-8cb667020fa7?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1ODh8MHwxfHNlYXJjaHwxfHxibHVlJTIwdGVjaCUyMGdsb3dpbmclMjBhYnN0cmFjdHxlbnwwfHx8fDE3NzQ3NjIwMjV8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Blue tech abstract streaks for AI-related sections."
+    },
+    "meeting_room_1": {
+      "url": "https://images.unsplash.com/photo-1772112334844-2eed0111e690?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzB8MHwxfHNlYXJjaHwzfHxtb2Rlcm4lMjBjb3Jwb3JhdGUlMjBtZWV0aW5nJTIwcm9vbXxlbnwwfHx8fDE3NzQ3NjIwMTh8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Modern corporate meeting room image for room booking cards."
+    },
+    "meeting_room_2": {
+      "url": "https://images.unsplash.com/photo-1740933084056-078fac872bff?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzB8MHwxfHNlYXJjaHw0fHxtb2Rlcm4lMjBjb3Jwb3JhdGUlMjBtZWV0aW5nJTIwcm9vbXxlbnwwfHx8fDE3NzQ3NjIwMTh8MA&ixlib=rb-4.1.0&q=85",
+      "description": "Alternative modern corporate meeting room image."
+    },
+    "user_avatar_1": {
+      "url": "https://images.pexels.com/photos/30004324/pexels-photo-30004324.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "description": "Professional female headshot for user profile / guest."
+    },
+    "user_avatar_2": {
+      "url": "https://images.unsplash.com/photo-1672685667592-0392f458f46f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2OTV8MHwxfHNlYXJjaHwzfHxwcm9mZXNzaW9uYWwlMjBoZWFkc2hvdCUyMHBvcnRyYWl0fGVufDB8fHx8MTc3NDc2MjAxOXww&ixlib=rb-4.1.0&q=85",
+      "description": "Professional male headshot for admin/employee profile."
+    }
+  },
+  "libraries_to_install": [
+    "lucide-react",
+    "@phosphor-icons/react",
+    "recharts",
+    "date-fns",
+    "clsx",
+    "tailwind-merge"
+  ],
+  "accessibility_and_testing": {
+    "data_testid_rule": "ALL interactive elements (buttons, inputs, links, tabs) MUST have a descriptive data-testid attribute.",
+    "contrast": "Text must maintain at least a 4.5:1 contrast ratio against its background. Hover states MUST explicitly set text color."
+  },
+  "instructions_to_main_agent": "Implement a 'Swiss & High-Contrast' aesthetic. Use sharp edges (rounded-none). The layout should heavily utilize grid borders, making the structure visible and technical. Keep the color palette monochrome (black, white, zinc) with a vibrant electric blue (#0047FF) reserved strictly for primary actions and AI features. Prioritize information density and hierarchy using Cabinet Grotesk for headings and IBM Plex Sans for body text. All images must come from the media_urls provided. Never use placeholder images. Every interactive element must include a data-testid. DO NOT use generic fonts like Inter."
+}
