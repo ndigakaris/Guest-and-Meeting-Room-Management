@@ -123,10 +123,9 @@ function App() {
                 <ReceptionistDashboard />
               </ProtectedRoute>
             }
-          />
-        
+          />    
 <Route
-  path="/receptionist/WalkInVisitor"
+  path="/receptionist/walk-in"
   element={
     <ProtectedRoute allowedRoles={['receptionist', 'admin']}>
       <WalkInVisitor />
