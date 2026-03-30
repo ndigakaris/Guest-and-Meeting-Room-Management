@@ -124,6 +124,15 @@ function App() {
               </ProtectedRoute>
             }
           />
+        
+<Route
+  path="/receptionist/WalkInVisitor"
+  element={
+    <ProtectedRoute allowedRoles={['receptionist', 'admin']}>
+      <WalkInVisitor />
+    </ProtectedRoute>
+  }
+/>
           <Route
             path="/receptionist/check-in"
             element={
