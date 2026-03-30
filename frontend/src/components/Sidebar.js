@@ -23,6 +23,7 @@ const employeeLinks = [
 
 const receptionistLinks = [
   { to: '/receptionist/dashboard', icon: BarChart3, label: 'Dashboard' },
+  { to: '/receptionist/walk-in', icon: UserPlus, label: 'Walk-In Visitor' },
   { to: '/receptionist/check-in', icon: ClipboardCheck, label: 'Check In' },
   { to: '/receptionist/check-out', icon: ClipboardCheck, label: 'Check Out' },
   { to: '/receptionist/visitors', icon: UserPlus, label: "Today's Visitors" },

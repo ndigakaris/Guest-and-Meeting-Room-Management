@@ -45,6 +45,7 @@ class UserCreate(BaseModel):
     role: str  # 'admin', 'employee', 'receptionist'
     department: Optional[str] = None
     phone: Optional[str] = None
+    permissions: List[str] = []  # User-defined permissions
 
 class UserLogin(BaseModel):
     email: EmailStr
@@ -58,6 +59,7 @@ class UserResponse(BaseModel):
     department: Optional[str] = None
     phone: Optional[str] = None
     is_active: bool
+    permissions: List[str] = []
     created_at: datetime
 
 class TokenResponse(BaseModel):
@@ -165,6 +167,30 @@ class RoomRecommendationRequest(BaseModel):
     start_time: datetime
     end_time: datetime
     required_amenities: List[str] = []
+
+class WalkInVisitorCreate(BaseModel):
+    full_name: str
+    email: Optional[EmailStr] = None
+    phone: str
+    company: Optional[str] = None
+    id_passport_number: str
+    vehicle_plate: Optional[str] = None
+    host_employee_email: str
+    purpose: str  # 'Business Meeting', 'Interview', 'Delivery', 'Maintenance', 'Casual Worker', 'Other'
+    arrival_time: datetime
+    additional_notes: Optional[str] = None
+
+class MeetingRoomUpdate(BaseModel):
+    room_name: Optional[str] = None
+    capacity: Optional[int] = None
+    floor: Optional[int] = None
+    amenities: Optional[List[str]] = None
+    equipment: Optional[List[str]] = None
+    images: Optional[List[str]] = None
+
+class UserPermissionsUpdate(BaseModel):
+    permissions: List[str]
+
 
 # ============= UTILITY FUNCTIONS =============
 
@@ -292,6 +318,35 @@ async def toggle_user_status(
     
     return {"email": email, "is_active": new_status}
 
+@api_router.patch("/users/{email}/permissions")
+async def update_user_permissions(
+    email: str,
+    permissions_data: UserPermissionsUpdate,
+    current_user: dict = Depends(require_role(["admin"]))
+):
+    """Admin: Update user permissions"""
+    user = await db.users.find_one({"email": email})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    await db.users.update_one(
+        {"email": email},
+        {"$set": {"permissions": permissions_data.permissions, "updated_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    return {"email": email, "permissions": permissions_data.permissions}
+
+@api_router.get("/users/employees/list")
+async def list_employees(current_user: dict = Depends(get_current_user)):
+    """Get list of all employees for dropdown"""
+    employees = await db.users.find(
+        {"role": {"$in": ["employee", "admin"]}, "is_active": True},
+        {"_id": 0, "email": 1, "full_name": 1}
+    ).to_list(1000)
+    
+    return employees
+
+
 # ============= MEETING ROOMS =============
 
 @api_router.post("/rooms", response_model=MeetingRoomResponse)
@@ -364,6 +419,60 @@ async def check_room_availability(
         room["created_at"] = datetime.fromisoformat(room["created_at"]) if isinstance(room["created_at"], str) else room["created_at"]
     
     return available_rooms
+
+@api_router.put("/rooms/{room_code}")
+async def update_room(
+    room_code: str,
+    room_data: MeetingRoomUpdate,
+    current_user: dict = Depends(require_role(["admin"]))
+):
+    """Admin: Update meeting room"""
+    room = await db.meeting_rooms.find_one({"room_code": room_code})
+    if not room:
+        raise HTTPException(status_code=404, detail="Room not found")
+    
+    update_dict = {k: v for k, v in room_data.model_dump().items() if v is not None}
+    if update_dict:
+        update_dict["updated_at"] = datetime.now(timezone.utc).isoformat()
+        await db.meeting_rooms.update_one(
+            {"room_code": room_code},
+            {"$set": update_dict}
+        )
+    
+    updated_room = await db.meeting_rooms.find_one({"room_code": room_code}, {"_id": 0})
+    updated_room["created_at"] = datetime.fromisoformat(updated_room["created_at"]) if isinstance(updated_room["created_at"], str) else updated_room["created_at"]
+    
+    return MeetingRoomResponse(**updated_room)
+
+@api_router.patch("/rooms/{room_code}/toggle-status")
+async def toggle_room_status(
+    room_code: str,
+    current_user: dict = Depends(require_role(["admin"]))
+):
+    """Admin: Activate/deactivate room"""
+    room = await db.meeting_rooms.find_one({"room_code": room_code})
+    if not room:
+        raise HTTPException(status_code=404, detail="Room not found")
+    
+    new_status = not room.get("is_active", True)
+    await db.meeting_rooms.update_one(
+        {"room_code": room_code},
+        {"$set": {"is_active": new_status, "updated_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    return {"room_code": room_code, "is_active": new_status}
+
+@api_router.get("/rooms/all", response_model=List[MeetingRoomResponse])
+async def list_all_rooms(
+    current_user: dict = Depends(require_role(["admin"]))
+):
+    """Admin: List ALL rooms including inactive"""
+    rooms = await db.meeting_rooms.find({}, {"_id": 0}).to_list(1000)
+    for room in rooms:
+        room["created_at"] = datetime.fromisoformat(room["created_at"]) if isinstance(room["created_at"], str) else room["created_at"]
+    
+    return [MeetingRoomResponse(**room) for room in rooms]
+
 
 # ============= BOOKINGS =============
 
@@ -447,15 +556,15 @@ async def cancel_booking(
     booking_id: str,
     current_user: dict = Depends(get_current_user)
 ):
-    """Cancel booking"""
+    """Cancel booking - Admin can cancel any, Employee only own"""
     # For simplicity, using start_time + room_code as identifier
     # In production, use proper ObjectId
     booking = await db.bookings.find_one({"room_code": booking_id.split("_")[0]})
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found")
     
-    # Check permissions
-    if current_user["role"] == "employee" and booking["booked_by_email"] != current_user["email"]:
+    # Check permissions - Admin and Receptionist can cancel any booking
+    if current_user["role"] not in ["admin", "receptionist"] and booking["booked_by_email"] != current_user["email"]:
         raise HTTPException(status_code=403, detail="Can only cancel your own bookings")
     
     await db.bookings.update_one(
@@ -579,6 +688,48 @@ async def check_out_guest(
     )
     
     return {"message": "Guest checked out successfully", "email": guest_email}
+
+@api_router.post("/guests/walk-in")
+async def create_walk_in_visitor(
+    visitor_data: WalkInVisitorCreate,
+    current_user: dict = Depends(require_role(["receptionist", "admin"]))
+):
+    """Receptionist: Register walk-in visitor"""
+    # Verify host employee exists
+    host = await db.users.find_one({"email": visitor_data.host_employee_email})
+    if not host:
+        raise HTTPException(status_code=404, detail="Host employee not found")
+    
+    visitor_dict = visitor_data.model_dump()
+    visitor_dict["host_employee_name"] = host["full_name"]
+    visitor_dict["status"] = "checked_in"  # Walk-ins are immediately checked-in
+    visitor_dict["visit_date"] = visitor_dict["arrival_time"]
+    visitor_dict["expected_arrival"] = visitor_dict["arrival_time"]
+    visitor_dict["actual_arrival"] = visitor_dict["arrival_time"]
+    visitor_dict["checked_in_by_email"] = current_user["email"]
+    visitor_dict["visitor_badge_number"] = f"WI-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    visitor_dict["created_at"] = datetime.now(timezone.utc).isoformat()
+    visitor_dict["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    # Convert datetime to ISO string
+    visitor_dict["arrival_time"] = visitor_dict["arrival_time"].isoformat()
+    visitor_dict["visit_date"] = visitor_dict["visit_date"].isoformat()
+    visitor_dict["expected_arrival"] = visitor_dict["expected_arrival"].isoformat()
+    visitor_dict["actual_arrival"] = visitor_dict["actual_arrival"].isoformat()
+    
+    await db.guests.insert_one(visitor_dict)
+    
+    # TODO: Send email notification to host employee
+    # For now, just log it
+    logger.info(f"Walk-in visitor {visitor_dict['full_name']} checked in for {host['full_name']}")
+    
+    return {
+        "message": "Walk-in visitor registered successfully",
+        "visitor_name": visitor_dict["full_name"],
+        "badge_number": visitor_dict["visitor_badge_number"],
+        "host_name": host["full_name"]
+    }
+
 
 # ============= AI ASSISTANT =============
 
