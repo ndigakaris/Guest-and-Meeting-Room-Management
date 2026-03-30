@@ -20,7 +20,7 @@ import { AIChat } from './pages/employee/AIChat';
 import { ReceptionistDashboard } from './pages/receptionist/ReceptionistDashboard';
 import { GuestCheckIn } from './pages/receptionist/GuestCheckIn';
 import { GuestCheckOut } from './pages/receptionist/GuestCheckOut';
-import { WalkInVisitor } from './pages/receptionist/WalkInVisitor';
+import { WalkInVisitor } from './pages/reception/WalkInVisitor';
 
 import './App.css';
 
